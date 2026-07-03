@@ -2,35 +2,56 @@ import os
 import re
 import pandas as pd
 
-# CSV export URL
-csv_url = f"Enter your URL here" #Enter your URL here
+# ============================
+# Configuration
+# ============================
 
-# Read the sheet
+# Enter the CSV export URL
+csv_url = "Enter your CSV URL here"
+
+# Replace with your spreadsheet column names
+FOLDER_COLUMN = "Folder Column"
+CONTENT_COLUMN = "Content Column"
+
+# Output configuration
+OUTPUT_DIR = "Output"
+FILE_NAME = "file.txt"
+
+# ============================
+# Read CSV
+# ============================
+
 df = pd.read_csv(csv_url)
 
-# Output folder
-OUTPUT_DIR = "Tasks"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# Remove invalid filename characters
+# ============================
+# Helper Function
+# ============================
+
 def clean_filename(name):
-    return re.sub(r'[<>:"/\\\\|?*]', "_", str(name))
+    return re.sub(r'[<>:"/\\|?*]', "_", str(name))
+
+# ============================
+# Generate Folders & Files
+# ============================
 
 for _, row in df.iterrows():
-    hero_task = str(row["hero_task"]).strip()
-    instructions = str(row["must_follow_instructions"]).strip()
 
-    if not hero_task:
+    folder_name = str(row[FOLDER_COLUMN]).strip()
+    file_content = str(row[CONTENT_COLUMN]).strip()
+
+    if not folder_name:
         continue
 
-    folder = os.path.join(OUTPUT_DIR, clean_filename(hero_task))
-    os.makedirs(folder, exist_ok=True)
+    folder_path = os.path.join(OUTPUT_DIR, clean_filename(folder_name))
+    os.makedirs(folder_path, exist_ok=True)
 
-    txt_path = os.path.join(folder, "must_follow_instructions.txt")
+    file_path = os.path.join(folder_path, FILE_NAME)
 
-    with open(txt_path, "w", encoding="utf-8") as f:
-        f.write(instructions)
+    with open(file_path, "w", encoding="utf-8") as file:
+        file.write(file_content)
 
-    print(f"Created: {txt_path}")
+    print(f"Created: {file_path}")
 
 print("Done!")
